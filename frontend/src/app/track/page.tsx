@@ -3,18 +3,20 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 
-const statusLabels: Record<string, { label: string; color: string }> = {
-  submitted: { label: "Submitted", color: "bg-slate-100 text-slate-700" },
-  under_review: { label: "Under review", color: "bg-blue-100 text-blue-700" },
-  contacted_for_info: { label: "Contacted for info", color: "bg-blue-100 text-blue-700" },
-  investigating: { label: "Investigating", color: "bg-amber-100 text-amber-700" },
-  verified_fraud: { label: "Verified fraud", color: "bg-red-100 text-red-700" },
-  resolved: { label: "Resolved", color: "bg-green-100 text-green-700" },
-  dismissed: { label: "Dismissed", color: "bg-slate-100 text-slate-500" },
+const statusColors: Record<string, string> = {
+  submitted: "bg-slate-100 text-slate-700",
+  under_review: "bg-blue-100 text-blue-700",
+  contacted_for_info: "bg-blue-100 text-blue-700",
+  investigating: "bg-amber-100 text-amber-700",
+  verified_fraud: "bg-red-100 text-red-700",
+  resolved: "bg-green-100 text-green-700",
+  dismissed: "bg-slate-100 text-slate-500",
 };
 
 function TrackInner() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const [ref, setRef] = useState(searchParams.get("ref") || "");
   const [data, setData] = useState<any>(null);
@@ -44,10 +46,8 @@ function TrackInner() {
 
   return (
     <div className="container-page max-w-xl">
-      <h1 className="mb-1 text-2xl font-extrabold text-slate-800">Track your report</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        Enter the tracking number you received when you submitted a report.
-      </p>
+      <h1 className="mb-1 text-2xl font-extrabold text-slate-800">{t("track.title")}</h1>
+      <p className="mb-6 text-sm text-slate-500">{t("track.subtitle")}</p>
 
       <form onSubmit={check} className="flex gap-2">
         <input
@@ -57,7 +57,7 @@ function TrackInner() {
           placeholder="e.g. PS-2026-AB12CD"
         />
         <button className="btn-primary" disabled={loading}>
-          {loading ? "..." : "Check"}
+          {loading ? "..." : t("track.check")}
         </button>
       </form>
 
@@ -67,15 +67,15 @@ function TrackInner() {
         <div className="card mt-6 space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-slate-800">{data.agencyName}</h2>
-            <span className={`badge ${statusLabels[data.status]?.color}`}>
-              {statusLabels[data.status]?.label || data.status}
+            <span className={`badge ${statusColors[data.status] || "bg-slate-100 text-slate-700"}`}>
+              {t(`status.${data.status}`)}
             </span>
           </div>
-          <Row label="Tracking number" value={data.trackingNumber} />
-          <Row label="Type" value={data.complaintType} />
-          <Row label="Verified by Ministry" value={data.isVerified ? "Yes" : "Not yet"} />
-          <Row label="Submitted" value={new Date(data.submittedAt).toLocaleString()} />
-          <Row label="Last updated" value={new Date(data.lastUpdated).toLocaleString()} />
+          <Row label={t("track.trackingNumber")} value={data.trackingNumber} />
+          <Row label={t("track.type")} value={t(`type.${data.complaintType}`)} />
+          <Row label={t("track.verifiedByMinistry")} value={data.isVerified ? t("track.yes") : t("track.notYet")} />
+          <Row label={t("track.submittedAt")} value={new Date(data.submittedAt).toLocaleString()} />
+          <Row label={t("track.lastUpdated")} value={new Date(data.lastUpdated).toLocaleString()} />
         </div>
       )}
     </div>

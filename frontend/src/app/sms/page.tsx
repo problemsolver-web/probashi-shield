@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
@@ -10,13 +11,8 @@ interface Msg {
 }
 
 export default function SmsPage() {
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      from: "system",
-      text:
-        "PROBASHI SHIELD\nSend: VERIFY <agency>, FEE <country>, TIPS, or HELP",
-    },
-  ]);
+  const { t } = useI18n();
+  const [messages, setMessages] = useState<Msg[]>([{ from: "system", text: t("sms.intro") }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -46,11 +42,8 @@ export default function SmsPage() {
 
   return (
     <div className="container-page max-w-md">
-      <h1 className="mb-1 text-2xl font-extrabold text-slate-800">SMS verification demo</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        This simulates the SMS / USSD experience for workers with basic phones -
-        no internet needed. The same logic powers the real SMS gateway.
-      </p>
+      <h1 className="mb-1 text-2xl font-extrabold text-slate-800">{t("sms.title")}</h1>
+      <p className="mb-6 text-sm text-slate-500">{t("sms.subtitle")}</p>
 
       {/* Phone mockup */}
       <div className="mx-auto w-full rounded-3xl border-8 border-slate-800 bg-slate-800 shadow-xl">
@@ -82,11 +75,11 @@ export default function SmsPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send()}
-              placeholder="Type a message..."
+              placeholder={t("sms.placeholder")}
               className="flex-1 rounded-full border border-slate-300 px-3 py-1.5 text-sm outline-none"
             />
             <button onClick={() => send()} className="btn-primary rounded-full px-4">
-              Send
+              {t("sms.send")}
             </button>
           </div>
         </div>

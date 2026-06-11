@@ -4,8 +4,10 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 
 function ReportForm() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const prefillAgencyId = searchParams.get("agencyId") || "";
 
@@ -32,11 +34,11 @@ function ReportForm() {
     e.preventDefault();
     setError("");
     if (!form.agencyId && !form.agencyName.trim()) {
-      setError("Please enter the agency name you are reporting.");
+      setError(t("report.errAgency"));
       return;
     }
     if (form.description.trim().length < 10) {
-      setError("Please describe what happened (at least 10 characters).");
+      setError(t("report.errDesc"));
       return;
     }
     setLoading(true);
@@ -65,19 +67,18 @@ function ReportForm() {
   if (result) {
     return (
       <div className="card border-green-200 bg-green-50 text-center">
-        <h2 className="text-xl font-bold text-green-800">Report submitted</h2>
-        <p className="mt-2 text-sm text-green-700">
-          Thank you for protecting others. Save this tracking number to check
-          your report status:
-        </p>
+        <h2 className="text-xl font-bold text-green-800">{t("report.successTitle")}</h2>
+        <p className="mt-2 text-sm text-green-700">{t("report.successBody")}</p>
         <p className="my-4 text-2xl font-extrabold tracking-wider text-slate-800">
           {result.trackingNumber}
         </p>
         <div className="flex justify-center gap-3">
           <Link href={`/track?ref=${result.trackingNumber}`} className="btn-outline">
-            Track status
+            {t("report.trackStatus")}
           </Link>
-          <Link href="/" className="btn-primary">Done</Link>
+          <Link href="/" className="btn-primary">
+            {t("report.done")}
+          </Link>
         </div>
       </div>
     );
@@ -85,56 +86,54 @@ function ReportForm() {
 
   return (
     <form onSubmit={submit} className="card space-y-4">
-      {error && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
-      )}
+      {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
       {!prefillAgencyId && (
         <div>
-          <label className="label">Agency / agent name being reported *</label>
+          <label className="label">{t("report.agencyNameLabel")}</label>
           <input
             className="input"
             value={form.agencyName}
             onChange={(e) => update("agencyName", e.target.value)}
-            placeholder="Name of the agent or agency"
+            placeholder={t("report.agencyNamePh")}
           />
         </div>
       )}
       {prefillAgencyId && (
         <p className="rounded-lg bg-brand-light p-3 text-sm text-brand-dark">
-          Reporting a known agency. Your report will be linked to it.
+          {t("report.knownAgency")}
         </p>
       )}
 
       <div>
-        <label className="label">Type of fraud *</label>
+        <label className="label">{t("report.typeLabel")}</label>
         <select
           className="input"
           value={form.complaintType}
           onChange={(e) => update("complaintType", e.target.value)}
         >
-          <option value="money_fraud">Took money / disappeared</option>
-          <option value="job_mismatch">Job was different than promised</option>
-          <option value="visa_false">Fake or wrong visa</option>
-          <option value="salary_wrong">Salary was wrong</option>
-          <option value="missing_contact">Cannot contact agent anymore</option>
-          <option value="other">Other</option>
+          <option value="money_fraud">{t("report.type_money")}</option>
+          <option value="job_mismatch">{t("report.type_job")}</option>
+          <option value="visa_false">{t("report.type_visa")}</option>
+          <option value="salary_wrong">{t("report.type_salary")}</option>
+          <option value="missing_contact">{t("report.type_contact")}</option>
+          <option value="other">{t("report.type_other")}</option>
         </select>
       </div>
 
       <div>
-        <label className="label">What happened? *</label>
+        <label className="label">{t("report.descLabel")}</label>
         <textarea
           className="input min-h-[120px]"
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
-          placeholder="Describe what the agent promised, what you paid, and what went wrong."
+          placeholder={t("report.descPh")}
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="label">Amount lost (BDT)</label>
+          <label className="label">{t("report.amountLabel")}</label>
           <input
             type="number"
             className="input"
@@ -144,7 +143,7 @@ function ReportForm() {
           />
         </div>
         <div>
-          <label className="label">Date of incident</label>
+          <label className="label">{t("report.dateLabel")}</label>
           <input
             type="date"
             className="input"
@@ -156,22 +155,19 @@ function ReportForm() {
 
       <details className="rounded-lg border border-slate-200 p-3">
         <summary className="cursor-pointer text-sm font-medium text-slate-600">
-          Your contact info (optional - reports can be anonymous)
+          {t("report.contactSummary")}
         </summary>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
-          <input className="input" placeholder="Your name" value={form.reporterName} onChange={(e) => update("reporterName", e.target.value)} />
-          <input className="input" placeholder="Phone" value={form.reporterPhone} onChange={(e) => update("reporterPhone", e.target.value)} />
-          <input className="input sm:col-span-2" placeholder="District / location" value={form.reporterLocation} onChange={(e) => update("reporterLocation", e.target.value)} />
+          <input className="input" placeholder={t("report.yourName")} value={form.reporterName} onChange={(e) => update("reporterName", e.target.value)} />
+          <input className="input" placeholder={t("report.phone")} value={form.reporterPhone} onChange={(e) => update("reporterPhone", e.target.value)} />
+          <input className="input sm:col-span-2" placeholder={t("report.location")} value={form.reporterLocation} onChange={(e) => update("reporterLocation", e.target.value)} />
         </div>
       </details>
 
       <button type="submit" className="btn-primary w-full" disabled={loading}>
-        {loading ? "Submitting..." : "Submit report"}
+        {loading ? t("report.submitting") : t("report.submit")}
       </button>
-      <p className="text-center text-xs text-slate-400">
-        Your report helps warn other families. False reports may be removed by
-        the Ministry review team.
-      </p>
+      <p className="text-center text-xs text-slate-400">{t("report.disclaimer")}</p>
     </form>
   );
 }
@@ -179,14 +175,20 @@ function ReportForm() {
 export default function ReportPage() {
   return (
     <div className="container-page max-w-2xl">
-      <h1 className="mb-1 text-2xl font-extrabold text-slate-800">Report a fraudulent agent</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        Help protect others. Reports are reviewed by the Ministry team before
-        being marked verified.
-      </p>
+      <ReportHeader />
       <Suspense fallback={<div className="card">Loading...</div>}>
         <ReportForm />
       </Suspense>
     </div>
+  );
+}
+
+function ReportHeader() {
+  const { t } = useI18n();
+  return (
+    <>
+      <h1 className="mb-1 text-2xl font-extrabold text-slate-800">{t("report.title")}</h1>
+      <p className="mb-6 text-sm text-slate-500">{t("report.subtitle")}</p>
+    </>
   );
 }
