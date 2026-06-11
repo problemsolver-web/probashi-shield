@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
 export default function DestinationsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [destinations, setDestinations] = useState<any[]>([]);
   const [error, setError] = useState("");
 
@@ -15,6 +15,15 @@ export default function DestinationsPage() {
       .then((d) => setDestinations(d.destinations))
       .catch((e) => setError(e.message));
   }, []);
+
+  // Show a translated warning for known countries (by code); otherwise show the
+  // original text stored in the database.
+  function warningText(d: any): string {
+    const key = `dest.redflag.${d.countryCode}`;
+    const translated = t(key);
+    if (lang === "bn" && translated !== key) return translated;
+    return d.redFlagsSpecific;
+  }
 
   return (
     <div className="container-page">
@@ -61,7 +70,7 @@ export default function DestinationsPage() {
 
             {d.redFlagsSpecific && (
               <p className="mt-3 rounded-lg bg-amber-50 p-2 text-xs text-amber-800">
-                ⚠ {d.redFlagsSpecific}
+                ⚠ {warningText(d)}
               </p>
             )}
 
